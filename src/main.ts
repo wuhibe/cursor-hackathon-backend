@@ -34,6 +34,10 @@ async function bootstrap() {
     .addTag('posts', 'Social posts')
     .addTag('groups', 'Reading groups')
     .addTag('upload', 'File uploads')
+    .setTitle('API')
+    .setDescription('API docs')
+    .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (_ctrlKey: string, methodKey: string) => methodKey,

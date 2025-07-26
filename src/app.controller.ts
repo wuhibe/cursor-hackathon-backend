@@ -1,4 +1,5 @@
-import { Controller, Get, HttpCode, Redirect } from '@nestjs/common';
+import { Controller, Get, HttpCode, Redirect, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller()
@@ -7,6 +8,7 @@ export class AppController {
   @Redirect('/api', 301)
   root() {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('health-check')
   @ApiOperation({
     summary: 'Health check endpoint',
