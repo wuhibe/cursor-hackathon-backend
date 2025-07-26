@@ -6,3 +6,172 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
+model User {
+    id              String            @id @default(uuid())
+    email           String            @unique
+    username        String            @unique
+    password        String? // For password-based authentication
+    emailVerified   DateTime? // Email verification timestamp
+    image           String? // Profile image URL (Better Auth standard)
+    bio             String?
+    profileImage    String?
+    groups          GroupMember[]
+    posts           Post[]
+    summaries       Summary[]
+    chats           ChatMessage[]
+    adminGroups     Group[]           @relation("GroupAdmin")
+    uploadedBooks   Book[]            @relation("BookUploader")
+    comments        Comment[]
+    readingProgress ReadingProgress[]
+    accounts        Account[]
+    sessions        Session[]
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+}
+
+model Book {
+    id              String            @id @default(uuid())
+    title           String
+    author          String
+    fileUrl         String // MinIO link
+    uploaderId      String
+    uploader        User              @relation("BookUploader", fields: [uploaderId], references: [id])
+    comments        Comment[]
+    sharedWith      SharedBook[]
+    posts           Post[]
+    readingGoals    ReadingGoal[]
+    readingProgress ReadingProgress[]
+    summaries       Summary[]
+    createdAt       DateTime          @default(now())
+}
+
+model Post {
+    id        String   @id @default(uuid())
+    content   String
+    bookId    String?
+    book      Book?    @relation(fields: [bookId], references: [id])
+    authorId  String
+    author    User     @relation(fields: [authorId], references: [id])
+    createdAt DateTime @default(now())
+    moderated Boolean  @default(false)
+}
+
+model Group {
+    id          String        @id @default(uuid())
+    name        String
+    description String?
+    adminId     String
+    admin       User          @relation("GroupAdmin", fields: [adminId], references: [id])
+    members     GroupMember[]
+    readingGoal ReadingGoal[]
+    messages    ChatMessage[]
+}
+
+model GroupMember {
+    id       String   @id @default(uuid())
+    userId   String
+    groupId  String
+    role     String // 'admin' or 'member'
+    joinedAt DateTime @default(now())
+    user     User     @relation(fields: [userId], references: [id])
+    group    Group    @relation(fields: [groupId], references: [id])
+}
+
+model ChatMessage {
+    id          String   @id @default(uuid())
+    content     String
+    senderId    String
+    groupId     String?
+    recipientId String? // For DMs
+    createdAt   DateTime @default(now())
+    sender      User     @relation(fields: [senderId], references: [id])
+    group       Group?   @relation(fields: [groupId], references: [id])
+}
+
+model ReadingGoal {
+    id         String   @id @default(uuid())
+    groupId    String
+    bookId     String
+    dailyPages Int
+    startDate  DateTime
+    endDate    DateTime
+    group      Group    @relation(fields: [groupId], references: [id])
+    book       Book     @relation(fields: [bookId], references: [id])
+}
+
+model ReadingProgress {
+    id          String   @id @default(uuid())
+    userId      String
+    bookId      String
+    currentPage Int
+    lastUpdated DateTime @default(now())
+    user        User     @relation(fields: [userId], references: [id])
+    book        Book     @relation(fields: [bookId], references: [id])
+}
+
+model Summary {
+    id         String   @id @default(uuid())
+    userId     String
+    bookId     String
+    text       String
+    aiFeedback String? // From Gemini
+    createdAt  DateTime @default(now())
+    user       User     @relation(fields: [userId], references: [id])
+    book       Book     @relation(fields: [bookId], references: [id])
+}
+
+model Comment {
+    id        String   @id @default(uuid())
+    bookId    String
+    userId    String
+    page      Int
+    content   String
+    createdAt DateTime @default(now())
+    book      Book     @relation(fields: [bookId], references: [id])
+    user      User     @relation(fields: [userId], references: [id])
+}
+
+model SharedBook {
+    id         String   @id @default(uuid())
+    bookId     String
+    sharedWith String // User ID or group ID
+    sharedAt   DateTime @default(now())
+    book       Book     @relation(fields: [bookId], references: [id])
+}
+
+// Better Auth required models
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
