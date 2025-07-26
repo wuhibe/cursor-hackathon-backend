@@ -1,16 +1,18 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @ApiProperty({
-    description: 'Content of the post',
+    description: 'Title of the post',
     example: 'This is an amazing book! Highly recommended.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({
+    description: 'Content of the post',
+    example: '',
     minLength: 1,
     maxLength: 1000,
   })
@@ -19,20 +21,4 @@ export class CreatePostDto {
   @MinLength(1)
   @MaxLength(1000)
   content: string;
-
-  @ApiPropertyOptional({
-    description: 'ID of the book this post is about',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsOptional()
-  @IsString()
-  bookId?: string;
-
-  @ApiProperty({
-    description: 'ID of the user who created the post',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsString()
-  @IsNotEmpty()
-  authorId: string;
 }

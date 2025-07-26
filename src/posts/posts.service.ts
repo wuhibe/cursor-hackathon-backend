@@ -1,13 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { ContentModerationService } from './content-moderation.service';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly contentModerationService: ContentModerationService,
+  ) {}
 
   async findAll() {
     return this.prisma.post.findMany({
-      where: { moderated: true }, // Only show moderated posts
+      where: { moderated: true },
       include: {
         author: {
           select: {
@@ -56,15 +62,11 @@ export class PostsService {
     return post;
   }
 
-  async create(data: { content: string; bookId?: string; authorId: string }) {
-    // TODO: Add AI moderation via Gemini
-    // For now, we'll auto-approve posts
-    const moderated = true; // This should be determined by AI moderation
-
+  async create(data: CreatePostDto, authorId: string) {
     return this.prisma.post.create({
       data: {
         ...data,
-        moderated,
+        authorId,
       },
       include: {
         author: {
@@ -157,6 +159,7 @@ export class PostsService {
       where: {
         authorId,
         moderated: true,
+        approved: true,
       },
       include: {
         author: {
@@ -178,10 +181,26 @@ export class PostsService {
     });
   }
 
-  // TODO: Add AI moderation method
-  async moderatePost(content: string): Promise<boolean> {
-    // This should integrate with Gemini AI for content moderation
-    // For now, return true (auto-approve)
-    return true;
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async checkModeratePost() {
+    console.log('Checking for posts to moderate');
+    const posts = await this.prisma.post.findMany({
+      where: { approved: null },
+    });
+    if (posts.length === 0) {
+      return;
+    }
+
+    const post = posts[0];
+
+    const approval = await this.moderatePost(post.title, post.content);
+    await this.prisma.post.update({
+      where: { id: post.id },
+      data: { approved: approval },
+    });
+  }
+
+  async moderatePost(title: string, content: string): Promise<boolean> {
+    return this.contentModerationService.moderateContent(title, content);
   }
 }

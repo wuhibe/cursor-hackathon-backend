@@ -1,9 +1,11 @@
-import { Controller, Get, Put, Body, Param, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './dto';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto';
 
 @ApiTags('users')
+@UseGuards(AuthGuard('jwt'))
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -31,15 +33,6 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   async updateProfile(@Param('id') id: string, @Body() data: UpdateUserDto) {
     const user = await this.usersService.updateUser(id, data);
-    return { user };
-  }
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid input data' })
-  async createUser(@Body() data: CreateUserDto) {
-    const user = await this.usersService.createUser(data);
     return { user };
   }
 

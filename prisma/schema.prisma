@@ -14,6 +14,7 @@ model User {
     bio             String?
     profileImage    String?
     image           String?
+    password        String
     groups          GroupMember[]
     posts           Post[]
     summaries       Summary[]
@@ -24,6 +25,7 @@ model User {
     readingProgress ReadingProgress[]
     createdAt       DateTime          @default(now())
     updatedAt       DateTime          @updatedAt
+    likedPosts      Post[]            @relation("PostLikes")
 }
 
 model Book {
@@ -33,7 +35,6 @@ model Book {
     fileUrl         String // MinIO link
     uploaderId      String
     uploader        User              @relation("BookUploader", fields: [uploaderId], references: [id])
-    comments        Comment[]
     sharedWith      SharedBook[]
     posts           Post[]
     readingGoals    ReadingGoal[]
@@ -43,14 +44,18 @@ model Book {
 }
 
 model Post {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
+    title     String
     content   String
     bookId    String?
-    book      Book?    @relation(fields: [bookId], references: [id])
+    book      Book?     @relation(fields: [bookId], references: [id])
     authorId  String
-    author    User     @relation(fields: [authorId], references: [id])
-    moderated Boolean  @default(false)
-    createdAt DateTime @default(now())
+    author    User      @relation(fields: [authorId], references: [id])
+    moderated Boolean   @default(false)
+    approved  Boolean?
+    createdAt DateTime  @default(now())
+    comments  Comment[]
+    likers    User[]    @relation("PostLikes")
 }
 
 model Group {
@@ -119,12 +124,12 @@ model Summary {
 
 model Comment {
     id        String   @id @default(uuid())
-    bookId    String
+    postId    String
     userId    String
     page      Int
     content   String
     createdAt DateTime @default(now())
-    book      Book     @relation(fields: [bookId], references: [id])
+    post      Post     @relation(fields: [postId], references: [id])
     user      User     @relation(fields: [userId], references: [id])
 }
 

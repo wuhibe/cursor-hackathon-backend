@@ -1,15 +1,24 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { PostsService } from './posts.service';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreatePostDto, UpdatePostDto } from './dto';
+import { PostsService } from './posts.service';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -35,18 +44,22 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Create a new post' })
+  @ApiBearerAuth()
   @ApiResponse({ status: 201, description: 'Post created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
-  async create(@Body() data: CreatePostDto) {
-    const post = await this.postsService.create(data);
+  async create(@Body() data: CreatePostDto, @Req() req: any) {
+    const post = await this.postsService.create(data, req.user.userId);
     return { post };
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Update a post' })
   @ApiParam({ name: 'id', description: 'Post ID' })
   @ApiResponse({ status: 200, description: 'Post updated successfully' })
+  @ApiBearerAuth()
   @ApiResponse({ status: 404, description: 'Post not found' })
   async update(@Param('id') id: string, @Body() data: UpdatePostDto) {
     const post = await this.postsService.update(id, data);
@@ -54,6 +67,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Delete a post' })
   @ApiParam({ name: 'id', description: 'Post ID' })
   @ApiResponse({ status: 200, description: 'Post deleted successfully' })

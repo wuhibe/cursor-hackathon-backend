@@ -63,7 +63,7 @@ docker-compose up -d minio
 
 ### 3. **Access MinIO Console**
 
-- **URL**: http://localhost:9001
+- **URL**: <http://localhost:9001>
 - **Username**: minioadmin
 - **Password**: minioadmin
 
@@ -83,13 +83,6 @@ MINIO_PORT=9000
 MINIO_USE_SSL=false
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
-
-# BetterAuth Configuration
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
-JWT_SECRET="your-super-secret-jwt-key"
 
 # Application
 PORT=3000
@@ -286,7 +279,7 @@ curl -X POST http://localhost:3000/api/upload/book \
 
 ### **3. Verify in MinIO Console**
 
-- Visit http://localhost:9001
+- Visit <http://localhost:9001>
 - Login with minioadmin/minioadmin
 - Check buckets and files
 

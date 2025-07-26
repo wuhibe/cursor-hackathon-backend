@@ -8,13 +8,7 @@ Create a `.env` file in the root directory with the following variables:
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/booksy?schema=public"
 
-# BetterAuth Configuration
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
-
-# JWT Secret (for BetterAuth)
+# JWT Secret (for Passport)
 JWT_SECRET="your-super-secret-jwt-key"
 
 # Application
@@ -45,6 +39,7 @@ NODE_ENV=development
 
 1. Make sure PostgreSQL is running
 2. Run database migrations:
+
    ```bash
    npx prisma migrate dev
    ```
@@ -58,6 +53,7 @@ NODE_ENV=development
    ```
 
 2. Start the development server:
+
    ```bash
    npm run start:dev
    ```

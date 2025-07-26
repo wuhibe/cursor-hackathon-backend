@@ -4,7 +4,6 @@
 
 ### 🔐 **Auth Module** (`src/auth/`)
 
-- ✅ BetterAuth integration with credentials provider
 - ✅ JWT session management
 - ✅ Protected and public route decorators
 - ✅ Auth service for user management
@@ -97,7 +96,7 @@
 
 ### ✅ **Database Schema**
 
-- ✅ User, Account, Session models (BetterAuth)
+- ✅ User, Account, Session models (Passport)
 - ✅ Book, Post, Group models
 - ✅ ReadingGoal, ReadingProgress models
 - ✅ Summary, Comment models
@@ -105,7 +104,7 @@
 
 ### ✅ **Authentication & Authorization**
 
-- ✅ BetterAuth integration
+- ✅ Passport integration
 - ✅ JWT session management
 - ✅ Protected route guards
 - ✅ Public route decorators
@@ -193,7 +192,7 @@
 ✅ **Separation of Concerns**: Business logic in services, routing in controllers
 ✅ **Type Safety**: Full TypeScript implementation
 ✅ **Database Abstraction**: Prisma ORM for data access
-✅ **Authentication**: BetterAuth for secure user management
+✅ **Authentication**: Passport for secure user management
 ✅ **API Design**: RESTful endpoints with consistent patterns
 
 ## 📈 **DEPLOYMENT READY**
