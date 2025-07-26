@@ -29,6 +29,7 @@ async function bootstrap() {
     .setTitle('API')
     .setDescription('API docs')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (_ctrlKey: string, methodKey: string) => methodKey,
