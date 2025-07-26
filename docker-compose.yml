@@ -32,22 +32,6 @@ services:
     networks:
       - booksy-network
 
-  createbuckets:
-    image: minio/mc
-    container_name: booksy-createbuckets
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb myminio/booksy;
-      /usr/bin/mc policy set public myminio/booksy;
-      exit 0;
-      "
-    networks:
-      - booksy-network
-
 networks:
   booksy-network:
     driver: bridge

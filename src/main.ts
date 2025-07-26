@@ -12,7 +12,9 @@ import { GlobalExceptionFilter } from './common/filters';
 async function bootstrap() {
   const port = process.env.PORT || 3000;
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: false, // Required for Better Auth
+  });
 
   // Global validation pipe
   app.useGlobalPipes(
