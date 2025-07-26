@@ -63,8 +63,29 @@ export class UsersService {
     return user;
   }
 
-  async updateProfile(
-    userId: string,
+  async createUser(data: {
+    username: string;
+    email: string;
+    bio?: string;
+    image?: string;
+    profileImage?: string;
+  }) {
+    return this.prisma.user.create({
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        bio: true,
+        image: true,
+        profileImage: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async updateUser(
+    id: string,
     data: {
       username?: string;
       bio?: string;
@@ -73,7 +94,7 @@ export class UsersService {
     },
   ) {
     return this.prisma.user.update({
-      where: { id: userId },
+      where: { id },
       data,
       select: {
         id: true,

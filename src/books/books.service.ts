@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   async findAll() {
     return this.prisma.book.findMany({
@@ -51,7 +55,7 @@ export class BooksService {
     fileUrl: string;
     uploaderId: string;
   }) {
-    return this.prisma.book.create({
+    const book = await this.prisma.book.create({
       data,
       include: {
         uploader: {
@@ -63,6 +67,10 @@ export class BooksService {
         },
       },
     });
+
+    // Store the file URL in MinIO for better organization
+    // The fileUrl from upload will be stored in the database
+    return book;
   }
 
   async findByUploader(uploaderId: string) {

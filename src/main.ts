@@ -12,9 +12,7 @@ import { GlobalExceptionFilter } from './common/filters';
 async function bootstrap() {
   const port = process.env.PORT || 3000;
 
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false, // Required for Better Auth
-  });
+  const app = await NestFactory.create(AppModule);
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -28,20 +26,25 @@ async function bootstrap() {
 
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('API docs')
-    .setVersion('0.0.1')
+    .setTitle('Booksy API')
+    .setDescription('Social reading platform API')
+    .setVersion('1.0.0')
+    .addTag('books', 'Book management')
+    .addTag('users', 'User management')
+    .addTag('posts', 'Social posts')
+    .addTag('groups', 'Reading groups')
+    .addTag('upload', 'File uploads')
     .build();
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (_ctrlKey: string, methodKey: string) => methodKey,
   };
   const customOptions: SwaggerCustomOptions = {
-    customSiteTitle: 'API Docs',
+    customSiteTitle: 'Booksy API Docs',
   };
   const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api', app, document, customOptions);
 
   await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Booksy API is running on: ${await app.getUrl()}`);
 }
 bootstrap();

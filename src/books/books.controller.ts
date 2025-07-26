@@ -1,43 +1,46 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
-import { AuthGuard, Session, UserSession } from '@thallesp/nestjs-better-auth';
-import { Public } from '../auth/decorators/public.decorator';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { BooksService } from './books.service';
+import { CreateBookDto } from './dto';
 
+@ApiTags('books')
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  @Public()
+  @ApiOperation({ summary: 'Get all books' })
+  @ApiResponse({ status: 200, description: 'Books retrieved successfully' })
   async findAll() {
     const books = await this.booksService.findAll();
     return { books };
   }
 
   @Get(':id')
-  @Public()
+  @ApiOperation({ summary: 'Get book by ID' })
+  @ApiParam({ name: 'id', description: 'Book ID' })
+  @ApiResponse({ status: 200, description: 'Book retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Book not found' })
   async findOne(@Param('id') id: string) {
     const book = await this.booksService.findById(id);
     return { book };
   }
 
   @Post()
-  @UseGuards(AuthGuard)
-  async create(
-    @Body() data: { title: string; author: string; fileUrl: string },
-    @Session() session: UserSession,
-  ) {
-    const book = await this.booksService.create({
-      ...data,
-      uploaderId: session.user.id,
-    });
+  @ApiOperation({ summary: 'Create a new book' })
+  @ApiResponse({ status: 201, description: 'Book created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  async create(@Body() data: CreateBookDto) {
+    const book = await this.booksService.create(data);
     return { book };
   }
 
-  @Get('my-books')
-  @UseGuards(AuthGuard)
-  async findMyBooks(@Session() session: UserSession) {
-    const books = await this.booksService.findByUploader(session.user.id);
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Get books by uploader' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'Books retrieved successfully' })
+  async findByUploader(@Param('userId') userId: string) {
+    const books = await this.booksService.findByUploader(userId);
     return { books };
   }
 }

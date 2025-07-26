@@ -117,21 +117,13 @@ export class GroupsService {
     });
   }
 
-  async update(
-    id: string,
-    data: { name?: string; description?: string },
-    adminId: string,
-  ) {
+  async update(id: string, data: { name?: string; description?: string }) {
     const group = await this.prisma.group.findUnique({
       where: { id },
     });
 
     if (!group) {
       throw new NotFoundException(`Group with ID ${id} not found`);
-    }
-
-    if (group.adminId !== adminId) {
-      throw new ForbiddenException('Only group admin can update the group');
     }
 
     return this.prisma.group.update({

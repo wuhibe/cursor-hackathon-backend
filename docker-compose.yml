@@ -1,41 +1,43 @@
-version: "3.8"
+version: '3.8'
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:15
     container_name: booksy-postgres
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=booksy
+      POSTGRES_DB: booksy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - booksy-network 
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   minio:
-    image: minio/minio
+    image: minio/minio:latest
     container_name: booksy-minio
-    restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
-    volumes:
-      - minio-data:/data
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
-    networks:
-      - booksy-network
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
 
-networks:
-  booksy-network:
-    driver: bridge
+  redis:
+    image: redis:7-alpine
+    container_name: booksy-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
 
 volumes:
-  postgres-data:
-  minio-data:
+  postgres_data:
+  minio_data:
+  redis_data:

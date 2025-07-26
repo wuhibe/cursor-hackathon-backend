@@ -110,17 +110,13 @@ export class PostsService {
     return post;
   }
 
-  async delete(id: string, authorId: string) {
+  async delete(id: string) {
     const post = await this.prisma.post.findUnique({
       where: { id },
     });
 
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
-    }
-
-    if (post.authorId !== authorId) {
-      throw new Error('You can only delete your own posts');
     }
 
     await this.prisma.post.delete({
